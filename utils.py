@@ -48,35 +48,46 @@ def split_timeseries(timesteps,target_step,inputs,labels,dates = None):
     
     inp = []
     lbl = []
+    d = []
     while(target_index < len(inputs)):
         inp.append(inputs[start:end])
         lbl.append(labels[target_index])
+        d.append(dates[target_index])
         start += 1
         end += 1
         target_index += 1
     inp = np.array(inp)
     lbl = np.array(lbl)
+    d = np.array(d)
     
-    return np.array(inp),np.array(lbl)
+    return np.array(inp),np.array(lbl),np.array(d)
 
-def train_test_split(inputs,labels,dates,window,train_percentage):
+def train_test_split(inputs,labels,dates,window,train_percentage,horizon_days):
     
     input_batches = []
     test_batches = []
+    validation_batches = []
     
     start = 0
-    end = window
+    end = window + horizon_days
     train_size = round(train_percentage*window)
+    ## define the validation size equal to the test size
     test_size = round((1 - train_percentage)*window)
+    validation_size = int(test_size/2)
+    test_size = validation_size
     
     while(end <= inputs.shape[0]):
+    	## select the data of the window
         batch_data = inputs[start:end]
         batch_labels = labels[start:end]
-        input_batches.append((batch_data[0:train_size],batch_labels[0:train_size],dates[0:train_size]))
-        test_batches.append((batch_data[train_size:],batch_labels[train_size:],dates[train_size:]))
+        batch_dates = dates[start:end]
+        ## exclude some days in the future to avoid look - ahead error
+        input_batches.append((batch_data[0:train_size],batch_labels[0:train_size],batch_dates[0:train_size]))
+        validation_batches.append((batch_data[(train_size + horizon_days):-test_size],batch_labels[(train_size + horizon_days):-test_size],batch_dates[(train_size + horizon_days):-test_size]))
+        test_batches.append((batch_data[(train_size + horizon_days + validation_size):],batch_labels[(train_size + horizon_days + validation_size):],batch_dates[(train_size + horizon_days + validation_size):]))
         
         start += test_size
         end += test_size
         
-    return input_batches,test_batches
+    return input_batches,validation_batches,test_batches
 
