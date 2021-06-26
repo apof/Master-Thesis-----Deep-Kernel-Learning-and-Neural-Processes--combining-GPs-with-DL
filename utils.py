@@ -62,7 +62,7 @@ def split_timeseries(timesteps,target_step,inputs,labels,dates = None):
     
     return np.array(inp),np.array(lbl),np.array(d)
 
-def train_test_split(inputs,labels,dates,window,train_percentage,horizon_days):
+def train_test_split(inputs,labels,dates,window,train_percentage,valid_percentage,horizon_days):
     
     input_batches = []
     test_batches = []
@@ -73,8 +73,8 @@ def train_test_split(inputs,labels,dates,window,train_percentage,horizon_days):
     train_size = round(train_percentage*window)
     ## define the validation size equal to the test size
     test_size = round((1 - train_percentage)*window)
-    validation_size = int(test_size/2)
-    test_size = validation_size
+    validation_size = round((valid_percentage)*test_size)
+    test_size = test_size - validation_size
     
     while(end <= inputs.shape[0]):
     	## select the data of the window
