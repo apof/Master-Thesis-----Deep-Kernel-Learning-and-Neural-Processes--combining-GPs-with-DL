@@ -72,8 +72,15 @@ class RnnRegressor(nn.Module):
         self.activation_func_2 = nn.LeakyReLU(0.1)
 
 
+        ## define the input dimension whether I have CNN preprocessing step or not
+        input_dimension = None
+        if(params_dictionary.get('cnn_layer') == True):
+        	input_dimension = params_dictionary['cnn_reduced_dim_1']
+        else:
+        	input_dimension = params_dictionary['embedding_size'][index]
+
         ## define the RNN layer
-        self.rnn = self.rnn(params_dictionary['cnn_reduced_dim_1'],
+        self.rnn = self.rnn(input_dimension,
                             self.params.get('hidden_dim'),
                             num_layers=self.params.get('rnn_layers_num'),
                             bidirectional=self.params.get('bidirectional'),

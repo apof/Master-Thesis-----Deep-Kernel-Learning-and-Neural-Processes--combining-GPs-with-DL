@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
@@ -91,3 +93,15 @@ def train_test_split(inputs,labels,dates,window,train_percentage,valid_percentag
         
     return input_batches,validation_batches,test_batches
 
+
+def plot_directional_results(predictions,labels,index):
+    directional_result = (np.sign(labels[1:] - labels[:-1]) == (np.sign(predictions[1:] - labels[:-1])).astype(int))
+    color_list = []
+    for i,res in enumerate(directional_result):
+      if(res == True):
+        color_list.append('red')
+      else:
+        color_list.append('blue')
+
+    plt.figure(figsize=(14,14))
+    plt.scatter(index[1:],predictions[1:],color=color_list,s=20)
